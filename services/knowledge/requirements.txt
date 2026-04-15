@@ -1,2 +1,0 @@
-qdrant-client>=1.17.0
-elasticsearch>=9.0.0
