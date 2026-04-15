@@ -2,12 +2,12 @@ name: CI Baseline
 
 on:
   push:
-    branches: [ main, "dev-*" ] # Added quotes for safety
+    branches: [ main, "dev-*" ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  lint-black: # Match protection rule
+  lint: # Updated ID to match protection.json
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
       - name: Run Lint & Format Check
         run: make fl
 
-  test-cases: # Match protection rule
+  test: # Updated ID to match protection.json
     runs-on: ubuntu-latest
     services:
       postgres:
