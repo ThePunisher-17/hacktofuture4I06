@@ -8,7 +8,6 @@ Supports two execution modes (controlled by MCP_LIVE env var):
 """
 
 import logging
-import os
 from typing import Any, Dict, List
 
 from langchain_core.prompts import ChatPromptTemplate
@@ -39,8 +38,9 @@ class ActionPlannerSchema(BaseModel):
 
 SYSTEM_PROMPT = """You are the core of an Autonomous Proactive Product Manager.
 
-The user will provide natural language text (e.g. standup updates, bug reports, status changes).
-Your job is to parse this text, determine what actions need to occur across platforms, and output a structured plan.
+The user will provide natural language text (e.g. checking in standup updates, reporting a bug).
+Your job is to parse this text, determine what actions need to occur across various platforms,
+and output a structured plan.
 
 AVAILABLE TOOLS:
 - jira: [create_ticket, transition_status, update_ticket]
