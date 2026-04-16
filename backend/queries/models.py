@@ -1,21 +1,9 @@
-from django.db import models
-
-
-class IntegrationConfig(models.Model):
-    """Stores configuration for third-party integrations (Jira, HubSpot, etc.)."""
-
-    name = models.CharField(max_length=100, unique=True)
-    api_key_encrypted = models.TextField(
-        help_text="Encrypted API key for the integration"
-    )
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.name} ({'Active' if self.is_active else 'Inactive'})"
-
-    class Meta:
-        ordering = ["name"]
-        verbose_name = "Integration Config"
-        verbose_name_plural = "Integration Configs"
+# queries app — intentionally empty.
+#
+# SavedQuery model and endpoints are owned by the `insights` app:
+#   - Model:    insights.models.SavedQuery
+#   - Endpoint: GET/POST /api/v1/saved-queries/
+#   - Views:    insights.views.SavedQueryListView
+#
+# This app exists in INSTALLED_APPS for historical reasons.
+# Its migrations folder contains only __init__.py (no table created here).

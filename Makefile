@@ -1,4 +1,4 @@
-.PHONY: help setup install backend agent jira hubspot frontend docker-up docker-down lint format fl test clean migrate makemigrations shell superuser celery-worker celery-beat test-backend test-agent test-cov
+.PHONY: help setup install backend agent jira hubspot frontend docker-up docker-down lint format fl type-check test clean migrate makemigrations shell superuser celery-worker celery-beat test-backend test-agent test-cov
 
 # ── Tooling paths ─────────────────────────────────────────────────────────────
 UV            := $(shell command -v uv 2> /dev/null || echo $(CURDIR)/.venv/bin/uv)
@@ -43,6 +43,7 @@ setup:
 
 # Install uv and dependencies
 install:
+	pip install uv
 	@echo "Checking for uv..."
 	@if ! command -v uv > /dev/null && [ ! -f "$(UV)" ]; then \
 		echo "uv not found. Install via: curl -LsSf https://astral.sh/uv/install.sh | sh"; \
@@ -121,6 +122,11 @@ lint:
 	cd agent-service && $(FLAKE8) .
 	@echo "Linting complete!"
 
+type-check:
+	@echo "Running mypy (strict) on agent-service..."
+	cd agent-service && $(PYTHON) -m mypy src/ --config-file mypy.ini
+	@echo "Type check complete!"
+
 format:
 	@echo "Formatting Python code with Black..."
 	cd backend && $(BLACK) .
@@ -134,6 +140,8 @@ test:
 	@echo "Running agent service tests (pytest)..."
 	cd agent-service && $(AGENT_PYTEST) --tb=short -q
 	@echo "Tests complete!"
+	@echo "Running tests with coverage..."
+	cd backend && $(BACKEND_PYTEST) --tb=short --cov=. --cov-report=term-missing -q
 
 test-backend:
 	@echo "Running backend tests only..."

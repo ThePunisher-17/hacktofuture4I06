@@ -1,11 +1,4 @@
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+"""queries/urls.py — no routes. SavedQuery is served by insights.urls."""
 
-from .views import IntegrationConfigViewSet
-
-router = DefaultRouter()
-router.register(r"integrations", IntegrationConfigViewSet)
-
-urlpatterns = [
-    path("api/v1/", include(router.urls)),
-]
+app_name = "queries"
+urlpatterns = []

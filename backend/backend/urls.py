@@ -33,4 +33,5 @@ urlpatterns = [
     path("api/v1/", include("chat.urls", namespace="chat")),
     path("api/v1/", include("security.urls", namespace="security")),
     path("api/v1/", include("sync.urls", namespace="sync")),
+    path("api/v1/", include("queries.urls", namespace="queries")),
 ]

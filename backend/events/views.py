@@ -49,14 +49,15 @@ class EventIngestView(APIView):
         data = serializer.validated_data
 
         try:
-            event = RawWebhookEvent.objects.create(
-                organization_id=data["organization_id"],
-                integration_id=data["integration_id"],
-                integration_account_id=data.get("integration_account_id"),
-                event_type=data["event_type"],
-                payload=data["payload"],
-                idempotency_key=data["idempotency_key"],
-            )
+            with transaction.atomic():
+                event = RawWebhookEvent.objects.create(
+                    organization_id=data["organization_id"],
+                    integration_id=data["integration_id"],
+                    integration_account_id=data.get("integration_account_id"),
+                    event_type=data["event_type"],
+                    payload=data["payload"],
+                    idempotency_key=data["idempotency_key"],
+                )
         except IntegrityError:
             # Duplicate idempotency key — return existing event
             existing = RawWebhookEvent.objects.get(
