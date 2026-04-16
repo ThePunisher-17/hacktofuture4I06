@@ -239,4 +239,3 @@ async def send_message(
         "ts": data.get("ts"),
         "message": data.get("message", {}),
     }
-
