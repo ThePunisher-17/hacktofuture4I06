@@ -49,7 +49,7 @@ install:
 		exit 1; \
 	fi
 	@echo "Installing dependencies via uv sync..."
-	uv sync
+	uv sync --all-extras
 	@echo "Installation complete! Activate with: source .venv/bin/activate"
 
 # Backend commands

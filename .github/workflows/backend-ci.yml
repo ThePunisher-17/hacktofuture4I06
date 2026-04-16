@@ -32,10 +32,9 @@ jobs:
           enable-cache: true
           python-version: ${{ env.PYTHON_VERSION }}
 
-      # uv sync reads uv.lock → installs into project-local .venv
-      # No --system flag needed; uv run transparently activates .venv
+      # --all-extras resolves all [project.optional-dependencies] incl. dev
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --all-extras
 
       - name: Black — backend
         run: cd backend && uv run black --check .
@@ -102,7 +101,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --all-extras
 
       - name: Run migrations
         run: cd backend && uv run python manage.py migrate --no-input
@@ -141,7 +140,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --all-extras
 
       - name: Run pytest (agent-service)
         run: cd agent-service && uv run pytest --tb=short -q
