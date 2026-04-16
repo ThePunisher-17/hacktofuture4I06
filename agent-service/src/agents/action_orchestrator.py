@@ -28,9 +28,12 @@ class ActionPlannerSchema(BaseModel):
 
     analysis: str = Field(description="Brief explanation of what needs to be done.")
     actions: List[Dict[str, Any]] = Field(
-        description="List of exact actions to take. Each dict must contain "
-        "'tool' (e.g. jira, slack), 'action' (e.g. update_ticket, create_ticket, "
-        "send_message) and 'payload' (relevant data)."
+        description=(
+            "List of exact actions to take. Each dict must contain "
+            "'tool' (e.g. jira, slack), "
+            "'action' (e.g. create_ticket, transition_status, send_message) "
+            "and 'payload' (relevant data)."
+        )
     )
 
 
@@ -61,9 +64,15 @@ async def _execute_mock(tool: str, action: str, payload: dict) -> str:
     """Mock MCP execution — safe for live demos."""
     logger.info("[MCP MOCK] Executing %s -> %s with payload %s", tool, action, payload)
     if tool == "jira" and action == "create_ticket":
-        return f"Created Jira ticket '{payload.get('summary', 'Untitled')}' in {payload.get('project_key', 'PROJ')}"
+        return (
+            f"Created Jira ticket '{payload.get('summary', 'Untitled')}' "
+            f"in {payload.get('project_key', 'PROJ')}"
+        )
     elif tool == "jira" and action == "transition_status":
-        return f"Transitioned {payload.get('issue_key', '???')} to '{payload.get('transition_name', '???')}'"
+        return (
+            f"Transitioned {payload.get('issue_key', '???')} to "
+            f"'{payload.get('transition_name', '???')}'"
+        )
     elif tool == "slack" and action == "send_message":
         return f"Sent message to Slack channel {payload.get('channel', '#general')}"
     else:
