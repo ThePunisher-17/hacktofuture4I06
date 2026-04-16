@@ -197,3 +197,44 @@ async def get_thread_replies(
         "next_cursor": next_cursor,
         "total": len(messages),
     }
+
+
+@app.tool()
+async def send_message(
+    channel_id: str,
+    text: str,
+    thread_ts: str = "",
+) -> dict:
+    """
+    Send a message to a Slack channel.
+
+    Args:
+        channel_id: Slack channel ID (e.g. C01234ABCD).
+        text: Message text (supports Slack mrkdwn formatting).
+        thread_ts: Optional parent message ts to reply in a thread.
+
+    Returns:
+        {ok, channel, ts, message}
+    """
+    payload: dict = {"channel": channel_id, "text": text}
+    if thread_ts:
+        payload["thread_ts"] = thread_ts
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            f"{SLACK_BASE_URL}/chat.postMessage",
+            headers=_headers(),
+            json=payload,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+
+    _check_response(data, "chat.postMessage")
+    logger.info("[slack] send_message(channel=%s) → ts=%s", channel_id, data.get("ts"))
+    return {
+        "ok": True,
+        "channel": data.get("channel"),
+        "ts": data.get("ts"),
+        "message": data.get("message", {}),
+    }
+

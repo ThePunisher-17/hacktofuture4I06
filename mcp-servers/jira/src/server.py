@@ -164,3 +164,113 @@ async def get_projects(limit: int = 50, start_at: int = 0) -> dict:
         "total": data.get("total", 0),
         "isLast": data.get("isLast", True),
     }
+
+
+@app.tool()
+async def create_issue(
+    project_key: str,
+    summary: str,
+    issue_type: str = "Task",
+    description: str = "",
+    priority: str = "Medium",
+    assignee_account_id: str = "",
+    labels: list[str] | None = None,
+) -> dict:
+    """
+    Create a new Jira issue.
+
+    Args:
+        project_key: Project key (e.g. PROJ).
+        summary: Issue title / summary.
+        issue_type: Type name — Task, Bug, Story, Epic, Sub-task.
+        description: Issue description (plain text).
+        priority: Priority name — Highest, High, Medium, Low, Lowest.
+        assignee_account_id: Atlassian account ID for assignee (optional).
+        labels: List of label strings (optional).
+
+    Returns:
+        {id, key, self} of the created issue.
+    """
+    fields: dict = {
+        "project": {"key": project_key},
+        "summary": summary,
+        "issuetype": {"name": issue_type},
+        "priority": {"name": priority},
+    }
+    if description:
+        fields["description"] = {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [{"type": "text", "text": description}],
+                }
+            ],
+        }
+    if assignee_account_id:
+        fields["assignee"] = {"accountId": assignee_account_id}
+    if labels:
+        fields["labels"] = labels
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            f"{_JIRA_BASE_URL}/rest/api/3/issue",
+            headers=_headers(),
+            json={"fields": fields},
+        )
+        resp.raise_for_status()
+        data = resp.json()
+
+    logger.info("[jira] create_issue → %s", data.get("key"))
+    return {"id": data["id"], "key": data["key"], "self": data["self"]}
+
+
+@app.tool()
+async def transition_issue(issue_key: str, transition_name: str) -> dict:
+    """
+    Transition a Jira issue to a new status.
+
+    Args:
+        issue_key: Jira issue key (e.g. PROJ-42).
+        transition_name: Target status name — e.g. 'Done', 'In Progress', 'To Do'.
+
+    Returns:
+        {success, issue_key, transitioned_to}
+    """
+    # First get available transitions
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.get(
+            f"{_JIRA_BASE_URL}/rest/api/3/issue/{issue_key}/transitions",
+            headers=_headers(),
+        )
+        resp.raise_for_status()
+        transitions = resp.json().get("transitions", [])
+
+    target = None
+    for t in transitions:
+        if t["name"].lower() == transition_name.lower():
+            target = t
+            break
+
+    if not target:
+        available = [t["name"] for t in transitions]
+        raise ValueError(
+            f"Transition '{transition_name}' not found for {issue_key}. "
+            f"Available: {available}"
+        )
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            f"{_JIRA_BASE_URL}/rest/api/3/issue/{issue_key}/transitions",
+            headers=_headers(),
+            json={"transition": {"id": target["id"]}},
+        )
+        resp.raise_for_status()
+
+    logger.info("[jira] transition_issue(%s) → %s", issue_key, transition_name)
+    return {
+        "success": True,
+        "issue_key": issue_key,
+        "transitioned_to": transition_name,
+    }
