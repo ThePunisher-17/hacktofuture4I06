@@ -24,9 +24,13 @@ MCP_LIVE = os.getenv("MCP_LIVE", "false").lower() == "true"
 
 
 class ActionItem(BaseModel):
-    tool: str = Field(description="The tool name, exactly one of: 'jira', 'slack', 'linear'")
+    tool: str = Field(
+        description="The tool name, exactly one of: 'jira', 'slack', 'linear'"
+    )
     action: str = Field(description="The name of the action to execute.")
-    payload: Dict[str, Any] = Field(description="The relevant data payload for the action.")
+    payload: Dict[str, Any] = Field(
+        description="The relevant data payload for the action."
+    )
 
 
 class ActionPlannerSchema(BaseModel):
