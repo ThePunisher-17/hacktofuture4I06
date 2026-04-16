@@ -103,7 +103,7 @@ hubspot:
 
 # Frontend
 frontend:
-	cd frontend && npm run dev
+	cd frontend && npx vite --host 0.0.0.0
 
 # Docker
 docker-up:
@@ -138,7 +138,7 @@ lint:
 		cd $(CURDIR); \
 	done
 	@echo "Running frontend linter..."
-	cd frontend && npm run lint
+	cd frontend && npx eslint .
 	@echo "Linting complete!"
 
 type-check:
@@ -168,7 +168,7 @@ test:
 	@echo "Running agent service tests (pytest)..."
 	cd agent-service && $(AGENT_PYTEST) --tb=short -q
 	@echo "Running frontend tests (vitest)..."
-	cd frontend && npm run test
+	cd frontend && npx vitest run
 	@echo "Tests complete!"
 	@echo "Running tests with coverage..."
 	cd backend && $(BACKEND_PYTEST) --tb=short --cov=. --cov-report=term-missing -q
@@ -183,7 +183,7 @@ test-agent:
 
 test-frontend:
 	@echo "Running frontend tests only..."
-	cd frontend && npm run test
+	cd frontend && npx vitest run
 
 test-cov:
 	@echo "Running tests with coverage..."
