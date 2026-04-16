@@ -1,13 +1,13 @@
 .PHONY: help setup install backend agent jira hubspot frontend docker-up docker-down lint format fl test clean
 
 # ── Tooling paths ─────────────────────────────────────────────────────────────
-UV            := $(shell pwd)/.venv/bin/uv
-PYTHON        := $(shell pwd)/.venv/bin/python
-BACKEND_PY    := $(shell pwd)/.venv/bin/python
-BACKEND_PYTEST := $(shell pwd)/.venv/bin/pytest
-AGENT_PYTEST  := $(shell pwd)/.venv/bin/pytest
-BLACK         := $(shell pwd)/.venv/bin/black
-FLAKE8        := $(shell pwd)/.venv/bin/flake8
+UV            := $(shell command -v uv 2> /dev/null || echo $(CURDIR)/.venv/bin/uv)
+PYTHON        := $(UV) run python
+BACKEND_PY    := $(UV) run python
+BACKEND_PYTEST := $(UV) run pytest
+AGENT_PYTEST  := $(UV) run pytest
+BLACK         := $(UV) run black
+FLAKE8        := $(UV) run flake8
 
 # Default target
 help:
@@ -51,7 +51,7 @@ install:
 		echo "uv is already installed."; \
 	fi
 	@echo "Installing dependencies from requirements.txt..."
-	uv pip install -r requirements.txt
+	$(UV) pip install -r requirements.txt
 	@echo "Installation complete!"
 
 # Backend commands
