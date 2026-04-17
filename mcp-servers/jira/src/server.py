@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 
 app = FastMCP(
     name="Jira MCP Server",
-    description="MCP tools for Jira — issues, projects, JQL search.",
 )
 
 _JIRA_BASE_URL = os.getenv("JIRA_BASE_URL", "").rstrip("/")

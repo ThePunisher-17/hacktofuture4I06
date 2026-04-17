@@ -89,6 +89,7 @@ class MeView(generics.RetrieveUpdateAPIView):
 
 class OrganizationDetailView(generics.RetrieveUpdateAPIView):
     """GET/PATCH /api/v1/organizations/{id}/"""
+    lookup_field = "id"
 
     def get_serializer_class(self):
         if self.request.method in ["PUT", "PATCH"]:
@@ -109,7 +110,7 @@ class OrganizationMemberListView(generics.ListCreateAPIView):
     def get_queryset(self):
         return OrganizationMember.objects.filter(
             organization_id=self.kwargs["org_id"]
-        ).select_related("user", "role")
+        ).select_related("user", "role").order_by("-joined_at")
 
 
 class OrganizationMemberDetailView(generics.DestroyAPIView):
@@ -125,7 +126,7 @@ class OrganizationInviteListView(generics.ListCreateAPIView):
     serializer_class = OrganizationInviteSerializer
 
     def get_queryset(self):
-        return OrganizationInvite.objects.filter(organization_id=self.kwargs["org_id"])
+        return OrganizationInvite.objects.filter(organization_id=self.kwargs["org_id"]).order_by("-created_at")
 
     def perform_create(self, serializer):
         from datetime import timedelta
@@ -184,4 +185,4 @@ class RoleListView(generics.ListAPIView):
 
     def get_queryset(self):
         org_id = self.request.user.profile.organization_id
-        return Role.objects.filter(Q(organization_id=org_id) | Q(is_system=True))
+        return Role.objects.filter(Q(organization_id=org_id) | Q(is_system=True)).order_by("name")

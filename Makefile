@@ -155,31 +155,34 @@ frontend-lint:
 
 # Docker
 docker-up:
-	docker compose up -d
+	sudo docker compose up -d
 
 docker-down:
-	docker compose down
+	sudo docker compose down
 
 docker-logs:
-	docker compose logs -f
+	sudo docker compose logs -f
 
 # Only the stateful dependencies (Postgres + Redis) — used by `make dev` so
 # we can hot-reload backend/agent/celery/frontend locally without conflicting
 # with the containerized copies of those services.
 deps-up:
 	@echo "Starting Postgres + Redis via Docker..."
-	docker compose up -d postgres redis
+	sudo docker compose up -d postgres redis
 	@echo "Waiting for dependencies to become healthy..."
-	@for i in 1 2 3 4 5 6 7 8 9 10; do \
-		if docker compose exec -T postgres pg_isready -U $${POSTGRES_USER:-postgres} >/dev/null 2>&1; then \
+	@for i in $$(seq 1 30); do \
+		if sudo docker compose exec -T postgres pg_isready -U $${POSTGRES_USER:-postgres} >/dev/null 2>&1; then \
 			echo "Postgres ready."; break; \
+		fi; \
+		if [ $$i -eq 30 ]; then \
+			echo "ERROR: Postgres did not become ready in time. Run 'sudo docker compose logs postgres' to check."; exit 1; \
 		fi; \
 		sleep 1; \
 	done
 
 deps-down:
 	@echo "Stopping Postgres + Redis..."
-	docker compose stop postgres redis
+	sudo docker compose stop postgres redis
 
 # ── make dev ────────────────────────────────────────────────────────────────
 # Full stack dev loop:

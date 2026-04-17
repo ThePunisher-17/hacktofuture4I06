@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     service_host: str = "0.0.0.0"
     service_port: int = 8001
     debug: bool = False
+    mcp_live: bool = False
 
     model_config = SettingsConfigDict(
         env_file="../.env",
